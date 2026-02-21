@@ -3,8 +3,8 @@ package week1.core.equals;
 import java.util.Objects;
 
 public class User {
-    private final Long id;
-    private final String email;
+    private Long id;
+    private String email;
 
     public User(Long id, String email) {
         this.id = id;
@@ -17,6 +17,10 @@ public class User {
 
     public String getEmail() {
         return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     @Override
