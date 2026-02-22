@@ -8,11 +8,15 @@ import java.util.Objects;
 @Getter
 @Setter
 public class MyHashMap<K, V> {
-    private static final int CAPACITY = 16;
+    private int capacity = 16;
     private int size = 0;
-    private Node<K, V>[] table = new Node[CAPACITY];
+    private Node<K, V>[] table;
+    private final float loadFactor = 0.75f;
+    private int threshold;
 
     public MyHashMap() {
+        recalculateThreshold();
+        table = new Node[capacity];
     }
 
     private int getIndex(K key) {
@@ -20,45 +24,74 @@ public class MyHashMap<K, V> {
         return hash & (table.length - 1);
     }
 
+    private void recalculateThreshold() {
+        threshold = (int) (capacity * loadFactor);
+    }
+
+    private void resize() {
+        System.out.println("=== Resize ===");
+        System.out.println("Старая емкость: " + capacity);
+        System.out.println("Элементов: " + size);
+
+        capacity *= 2;
+        recalculateThreshold();
+
+        Node<K, V>[] oldTable = table;
+        table = new Node[capacity];
+
+        for (int i = 0; i < oldTable.length; i++) {
+            if (oldTable[i] != null) {
+                Node<K, V> node = oldTable[i];
+
+                while (node != null) {
+                    Node<K, V> next = node.getNext();
+                    int newIndex = getIndex(node.getKey());
+
+                    node.setNext(table[newIndex]);
+                    table[newIndex] = node;
+
+                    node = next;
+                }
+            }
+        }
+
+        System.out.println("Новая емкость: " + capacity);
+        System.out.println("Новый порог: " + threshold);
+    }
+
     public void put(K key, V value) {
+        if (size >= threshold) {
+            resize();
+        }
+
         int index = getIndex(key);
 
-        Node<K, V> current = table[index];
+        Node<K, V> node = table[index];
 
-        // Если корзина пуста - просто вставляем
-        if (current == null) {
-            table[index] = new Node<>(key, value);
-            size++;
-            return;
-        }
-
-        // Ищем ключ в связном списке
-        Node<K, V> prev = null;
-
-        while (current != null) {
-            if (Objects.equals(current.getKey(), key)) {
-                current.setValue(value);
+        while (node != null) {
+            if (Objects.equals(node.getKey(), key)) {
+                node.setValue(value);
                 return;
             }
-            prev = current;
-            current = current.getNext();
+            node = node.getNext();
         }
 
-        // Ключ не найден - добавляем в конец списка
-        prev.setNext(new Node<>(key, value));
+        Node<K, V> newNode = new Node(key, value);
+        newNode.setNext(table[index]);
+        table[index] = newNode;
         size++;
     }
 
     public V get(K key) {
         int index = getIndex(key);
 
-        Node<K, V> current = table[index];
+        Node<K, V> node = table[index];
 
-        while (current != null) {
-            if (current.getKey().equals(key)) {
-                return current.getValue();
+        while (node != null) {
+            if (Objects.equals(node.getKey(), key)) {
+                return node.getValue();
             }
-            current = current.getNext();
+            node = node.getNext();
         }
 
         return null;
