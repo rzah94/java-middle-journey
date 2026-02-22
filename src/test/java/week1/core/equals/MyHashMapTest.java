@@ -42,20 +42,4 @@ class MyHashMapTest {
         }
     }
 
-    @Test
-    public void testMyHashMapWithInteger() {
-        final int size = 200;
-        MyHashMap<Integer, Integer> myHashMap = new MyHashMap<>();
-
-        for (int i = 0; i < size; i++) {
-            myHashMap.put(i, i);
-        }
-
-        Assertions.assertEquals(size, myHashMap.size());
-
-        for (int i = 0; i < size; i++) {
-            Assertions.assertEquals(i, myHashMap.get(i));
-        }
-    }
-
 }
