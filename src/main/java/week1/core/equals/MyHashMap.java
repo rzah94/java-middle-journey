@@ -3,6 +3,8 @@ package week1.core.equals;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Objects;
+
 @Getter
 @Setter
 public class MyHashMap<K, V> {
@@ -14,7 +16,8 @@ public class MyHashMap<K, V> {
     }
 
     private int getIndex(K key) {
-        return key.hashCode() & (table.length - 1);
+        int hash = key == null ? 0 : key.hashCode();
+        return hash & (table.length - 1);
     }
 
     public void put(K key, V value) {
@@ -33,7 +36,7 @@ public class MyHashMap<K, V> {
         Node<K, V> prev = null;
 
         while (current != null) {
-            if (current.getKey().equals(key)) {
+            if (Objects.equals(current.getKey(), key)) {
                 current.setValue(value);
                 return;
             }
